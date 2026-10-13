@@ -80,19 +80,25 @@ class _HomeScreenState extends State<HomeScreen> {
     _unlockDialogShown = true;
     await showDialog<void>(
       context: context,
-      builder: (context) => AlertDialog(
-        icon: const Icon(Icons.celebration_outlined),
-        title: const Text('Chúc mừng!'),
-        content: Text(
-          'Bạn đã mở khóa ${widget.university.name} '
-          '(${widget.university.shortName})!',
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(),
-            child: const Text('Tiếp tục'),
+      builder: (context) => TweenAnimationBuilder<double>(
+        tween: Tween(begin: 0.5, end: 1),
+        duration: const Duration(milliseconds: 300),
+        builder: (context, scale, child) =>
+            Transform.scale(scale: scale, child: child),
+        child: AlertDialog(
+          icon: const _SparklingUniversityIcon(),
+          title: const Text('Chúc mừng!'),
+          content: Text(
+            'Bạn đã mở khóa ${widget.university.name} '
+            '(${widget.university.shortName})!',
           ),
-        ],
+          actions: [
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(),
+              child: const Text('Tiếp tục'),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -171,6 +177,66 @@ class _HomeScreenState extends State<HomeScreen> {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+class _SparklingUniversityIcon extends StatefulWidget {
+  const _SparklingUniversityIcon();
+
+  @override
+  State<_SparklingUniversityIcon> createState() =>
+      _SparklingUniversityIconState();
+}
+
+class _SparklingUniversityIconState extends State<_SparklingUniversityIcon>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _sparkleController;
+  late final Animation<double> _sparkleAnimation;
+
+  @override
+  void initState() {
+    super.initState();
+    _sparkleController = AnimationController(
+      duration: const Duration(milliseconds: 900),
+      vsync: this,
+    )..repeat(reverse: true);
+    _sparkleAnimation = CurvedAnimation(
+      parent: _sparkleController,
+      curve: Curves.easeInOut,
+    );
+  }
+
+  @override
+  void dispose() {
+    _sparkleController.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return SizedBox(
+      width: 72,
+      height: 72,
+      child: Stack(
+        alignment: Alignment.center,
+        children: [
+          const Icon(Icons.school_rounded, size: 42, color: AppColors.exp),
+          Positioned(top: 4, right: 5, child: _buildSparkle(size: 17)),
+          Positioned(bottom: 8, left: 5, child: _buildSparkle(size: 13)),
+          Positioned(top: 13, left: 7, child: _buildSparkle(size: 10)),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildSparkle({required double size}) {
+    return FadeTransition(
+      opacity: _sparkleAnimation,
+      child: ScaleTransition(
+        scale: _sparkleAnimation,
+        child: Icon(Icons.auto_awesome, size: size, color: AppColors.exp),
       ),
     );
   }

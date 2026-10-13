@@ -23,14 +23,18 @@ class QuizScreen extends StatefulWidget {
   State<QuizScreen> createState() => _QuizScreenState();
 }
 
-class _QuizScreenState extends State<QuizScreen> {
+class _QuizScreenState extends State<QuizScreen>
+    with SingleTickerProviderStateMixin {
   final _stageService = StageService();
+  late final AnimationController _shakeController;
+  late final Animation<double> _shakeAnimation;
   StageAttempt? _attempt;
   final Set<int> _answeredQuestionIds = {};
   int _questionIndex = 0;
   bool _isLoading = true;
   bool _isBusy = false;
   bool? _isCorrect;
+  String? _selectedOption;
   String? _hint1;
   String? _hint2;
   bool _hint2Used = false;
@@ -47,11 +51,25 @@ class _QuizScreenState extends State<QuizScreen> {
   @override
   void initState() {
     super.initState();
+    _shakeController = AnimationController(
+      duration: const Duration(milliseconds: 350),
+      vsync: this,
+    );
+    _shakeAnimation = TweenSequence<double>(
+      [
+        TweenSequenceItem(tween: Tween(begin: 0, end: -8), weight: 1),
+        TweenSequenceItem(tween: Tween(begin: -8, end: 8), weight: 2),
+        TweenSequenceItem(tween: Tween(begin: 8, end: -6), weight: 2),
+        TweenSequenceItem(tween: Tween(begin: -6, end: 5), weight: 2),
+        TweenSequenceItem(tween: Tween(begin: 5, end: 0), weight: 1),
+      ],
+    ).animate(CurvedAnimation(parent: _shakeController, curve: Curves.easeOut));
     _startStage();
   }
 
   @override
   void dispose() {
+    _shakeController.dispose();
     _stageService.dispose();
     super.dispose();
   }
@@ -124,9 +142,11 @@ class _QuizScreenState extends State<QuizScreen> {
       setState(() {
         _isBusy = false;
         _isCorrect = result.isCorrect;
+        _selectedOption = option;
         _hint1 = result.hint1;
         _answeredQuestionIds.add(question.questionId);
       });
+      if (!result.isCorrect) _shakeController.forward(from: 0);
     } on StageServiceException catch (error) {
       if (mounted && error.isConnectionError) {
         await showNetworkErrorDialog(context, error.message);
@@ -207,6 +227,7 @@ class _QuizScreenState extends State<QuizScreen> {
     setState(() {
       _questionIndex = nextIndex;
       _isCorrect = null;
+      _selectedOption = null;
       _hint1 = null;
       _hint2 = null;
       _hint2Used = false;
@@ -280,16 +301,53 @@ class _QuizScreenState extends State<QuizScreen> {
         Text(question.content, style: Theme.of(context).textTheme.titleLarge),
         const SizedBox(height: 20),
         for (var index = 0; index < question.options.length; index++) ...[
-          OutlinedButton(
-            onPressed: _isBusy || _isCorrect != null
-                ? null
-                : () => _submitAnswer(String.fromCharCode(65 + index)),
-            child: Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                '${String.fromCharCode(65 + index)}. ${question.options[index]}',
-              ),
-            ),
+          Builder(
+            builder: (context) {
+              final option = String.fromCharCode(65 + index);
+              final isSelected =
+                  _selectedOption == option && _isCorrect != null;
+              final feedbackColor = isSelected
+                  ? (_isCorrect! ? AppColors.success : AppColors.error)
+                  : null;
+              return AnimatedBuilder(
+                animation: _shakeAnimation,
+                child: AnimatedContainer(
+                  duration: const Duration(milliseconds: 300),
+                  decoration: BoxDecoration(
+                    color: feedbackColor,
+                    borderRadius: BorderRadius.circular(12),
+                    border: Border.all(
+                      color:
+                          feedbackColor ??
+                          AppColors.primary.withValues(alpha: 0.8),
+                    ),
+                  ),
+                  child: OutlinedButton(
+                    onPressed: _isBusy || _isCorrect != null
+                        ? null
+                        : () => _submitAnswer(option),
+                    style: OutlinedButton.styleFrom(
+                      backgroundColor: Colors.transparent,
+                      disabledBackgroundColor: Colors.transparent,
+                      foregroundColor: AppColors.text,
+                      disabledForegroundColor: AppColors.text,
+                      side: BorderSide.none,
+                    ),
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Text('$option. ${question.options[index]}'),
+                    ),
+                  ),
+                ),
+                builder: (context, child) => Transform.translate(
+                  offset: Offset(
+                    isSelected && !_isCorrect! ? _shakeAnimation.value : 0,
+                    0,
+                  ),
+                  child: child,
+                ),
+              );
+            },
           ),
           const SizedBox(height: 8),
         ],
