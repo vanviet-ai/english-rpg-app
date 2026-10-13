@@ -187,3 +187,11 @@ C:\Users\DELL\AppData\Local\Temp\english-rpg-boss-ui-build\EnglishRpg.Api.deps.j
 C:\Users\DELL\AppData\Local\Temp\english-rpg-boss-ui-build\EnglishRpg.Api.runtimeconfig.json
 C:\Users\DELL\AppData\Local\Temp\english-rpg-boss-ui-build\EnglishRpg.Api.dll
 C:\Users\DELL\AppData\Local\Temp\english-rpg-boss-ui-build\EnglishRpg.Api.pdb
+D:\DEV\english-rpg-app\_build_verify_tmp\appsettings.Development.json
+D:\DEV\english-rpg-app\_build_verify_tmp\appsettings.json
+D:\DEV\english-rpg-app\_build_verify_tmp\EnglishRpg.Api.staticwebassets.endpoints.json
+D:\DEV\english-rpg-app\_build_verify_tmp\EnglishRpg.Api.exe
+D:\DEV\english-rpg-app\_build_verify_tmp\EnglishRpg.Api.deps.json
+D:\DEV\english-rpg-app\_build_verify_tmp\EnglishRpg.Api.runtimeconfig.json
+D:\DEV\english-rpg-app\_build_verify_tmp\EnglishRpg.Api.dll
+D:\DEV\english-rpg-app\_build_verify_tmp\EnglishRpg.Api.pdb
