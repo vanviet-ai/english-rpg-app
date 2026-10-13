@@ -41,6 +41,24 @@ class PlayerService {
     return Player.fromJson(body);
   }
 
+  Future<Player> getPlayer(int playerId) async {
+    final http.Response response;
+    try {
+      response = await _client.get(Uri.parse('$apiBaseUrl/players/$playerId'));
+    } on http.ClientException {
+      throw _connectionException();
+    }
+
+    _ensureSuccess(response);
+    final body = jsonDecode(response.body);
+    if (body is! Map<String, dynamic>) {
+      throw const FormatException(
+        'Phản hồi thông tin người chơi không hợp lệ.',
+      );
+    }
+    return Player.fromJson(body);
+  }
+
   Future<List<University>> getUniversities() async {
     final http.Response response;
     try {

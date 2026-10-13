@@ -8,6 +8,26 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 
 void main() {
+  test('loads a player by id from the configured API', () async {
+    late Uri requestedUri;
+    final service = PlayerService(
+      client: MockClient((request) async {
+        requestedUri = request.url;
+        return http.Response.bytes(
+          utf8.encode(jsonEncode({'id': 12, 'name': 'Việt', 'totalExp': 1140})),
+          200,
+        );
+      }),
+    );
+
+    final player = await service.getPlayer(12);
+
+    expect(requestedUri.toString(), '$apiBaseUrl/players/12');
+    expect(player.id, 12);
+    expect(player.totalExp, 1140);
+    service.dispose();
+  });
+
   test('loads universities from the configured API', () async {
     late Uri requestedUri;
     final service = PlayerService(
