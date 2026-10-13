@@ -25,12 +25,14 @@ Backend cần cho phép CORS từ origin localhost của Flutter Web.
 
 Từ Trang chủ, chọn **Vào bản đồ ải** để xem trạng thái các ải. Các ải thường
 mở khóa có thể chơi câu hỏi; màn chơi dùng các API `stages`, `attempts/answer`,
-`attempts/hint/next` và `attempts/finish` tại cùng địa chỉ backend. Boss được
-hiển thị trên bản đồ nhưng chưa chơi được qua API ải thường.
+`attempts/hint/next` và `attempts/finish` tại cùng địa chỉ backend. Boss mở khóa
+có màn hình luật chơi, đồng hồ đồng bộ theo thời hạn server, màn chơi không hiển
+thị đáp án và màn kết quả gọi API summary để ôn tập.
 
 ## Cấu trúc mã nguồn
 
 - `lib/models`: các model dữ liệu.
 - `lib/services`: gọi API.
-- `lib/screens`: màn hình đăng nhập, chọn trường, bản đồ ải, chơi câu hỏi và tổng kết.
+- `lib/screens`: màn hình đăng nhập, chọn trường, bản đồ ải, chơi ải thường/Boss
+  và các màn tổng kết.
 - `lib/widgets`: widget giao diện dùng lại.

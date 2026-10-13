@@ -110,29 +110,187 @@ class StageAttempt {
   const StageAttempt({
     required this.attemptId,
     required this.stageId,
+    required this.expiresAt,
+    this.remainingAtResponse,
     required this.questions,
   });
 
   final int attemptId;
   final int stageId;
+  final DateTime expiresAt;
+  final Duration? remainingAtResponse;
   final List<AttemptQuestion> questions;
 
-  factory StageAttempt.fromJson(Map<String, dynamic> json) {
+  factory StageAttempt.fromJson(
+    Map<String, dynamic> json, {
+    Duration? remainingAtResponse,
+  }) {
     final attemptId = json['attemptId'];
     final stageId = json['stageId'];
+    final expiresAt = json['expiresAt'];
     final questions = json['questions'];
-    if (attemptId is! int || stageId is! int || questions is! List<dynamic>) {
+    if (attemptId is! int ||
+        stageId is! int ||
+        expiresAt is! String ||
+        questions is! List<dynamic>) {
       throw const FormatException('Dữ liệu lượt chơi không hợp lệ.');
+    }
+    final parsedExpiresAt = DateTime.tryParse(expiresAt);
+    if (parsedExpiresAt == null) {
+      throw const FormatException('Thời hạn lượt chơi không hợp lệ.');
     }
 
     return StageAttempt(
       attemptId: attemptId,
       stageId: stageId,
+      expiresAt: parsedExpiresAt.toUtc(),
+      remainingAtResponse: remainingAtResponse,
       questions: questions.map((item) {
         if (item is! Map<String, dynamic>) {
           throw const FormatException('Dữ liệu câu hỏi không hợp lệ.');
         }
         return AttemptQuestion.fromJson(item);
+      }).toList(),
+    );
+  }
+}
+
+class BossFinishResult {
+  const BossFinishResult({
+    required this.attemptId,
+    required this.stageId,
+    required this.status,
+    required this.correctCount,
+    required this.incorrectCount,
+    required this.expEarned,
+    required this.totalExp,
+  });
+
+  final int attemptId;
+  final int stageId;
+  final String status;
+  final int correctCount;
+  final int incorrectCount;
+  final int expEarned;
+  final int totalExp;
+
+  bool get isVictory => status.toLowerCase() == 'passed';
+
+  factory BossFinishResult.fromJson(Map<String, dynamic> json) {
+    final attemptId = json['attemptId'];
+    final stageId = json['stageId'];
+    final status = json['status'];
+    final correctCount = json['correctCount'];
+    final incorrectCount = json['incorrectCount'];
+    final expEarned = json['expEarned'];
+    final totalExp = json['totalExp'];
+    if (attemptId is! int ||
+        stageId is! int ||
+        status is! String ||
+        correctCount is! int ||
+        incorrectCount is! int ||
+        expEarned is! int ||
+        totalExp is! int) {
+      throw const FormatException('Dữ liệu kết quả Boss không hợp lệ.');
+    }
+    return BossFinishResult(
+      attemptId: attemptId,
+      stageId: stageId,
+      status: status,
+      correctCount: correctCount,
+      incorrectCount: incorrectCount,
+      expEarned: expEarned,
+      totalExp: totalExp,
+    );
+  }
+}
+
+class BossQuestionReview {
+  const BossQuestionReview({
+    required this.questionId,
+    required this.orderNo,
+    required this.content,
+    required this.selectedOption,
+    required this.correctOption,
+    required this.explanation,
+  });
+
+  final int questionId;
+  final int orderNo;
+  final String content;
+  final String? selectedOption;
+  final String correctOption;
+  final String? explanation;
+
+  factory BossQuestionReview.fromJson(Map<String, dynamic> json) {
+    final questionId = json['questionId'];
+    final orderNo = json['orderNo'];
+    final content = json['content'];
+    final selectedOption = json['selectedOption'];
+    final correctOption = json['correctOption'];
+    final explanation = json['explanation'];
+    if (questionId is! int ||
+        orderNo is! int ||
+        content is! String ||
+        (selectedOption != null && selectedOption is! String) ||
+        correctOption is! String ||
+        (explanation != null && explanation is! String)) {
+      throw const FormatException('Dữ liệu ôn tập Boss không hợp lệ.');
+    }
+    return BossQuestionReview(
+      questionId: questionId,
+      orderNo: orderNo,
+      content: content,
+      selectedOption: selectedOption as String?,
+      correctOption: correctOption,
+      explanation: explanation as String?,
+    );
+  }
+}
+
+class BossAttemptSummary {
+  const BossAttemptSummary({
+    required this.attemptId,
+    required this.stageId,
+    required this.status,
+    required this.correctCount,
+    required this.incorrectCount,
+    required this.questions,
+  });
+
+  final int attemptId;
+  final int stageId;
+  final String status;
+  final int correctCount;
+  final int incorrectCount;
+  final List<BossQuestionReview> questions;
+
+  factory BossAttemptSummary.fromJson(Map<String, dynamic> json) {
+    final attemptId = json['attemptId'];
+    final stageId = json['stageId'];
+    final status = json['status'];
+    final correctCount = json['correctCount'];
+    final incorrectCount = json['incorrectCount'];
+    final questions = json['questions'];
+    if (attemptId is! int ||
+        stageId is! int ||
+        status is! String ||
+        correctCount is! int ||
+        incorrectCount is! int ||
+        questions is! List<dynamic>) {
+      throw const FormatException('Dữ liệu tổng kết Boss không hợp lệ.');
+    }
+    return BossAttemptSummary(
+      attemptId: attemptId,
+      stageId: stageId,
+      status: status,
+      correctCount: correctCount,
+      incorrectCount: incorrectCount,
+      questions: questions.map((item) {
+        if (item is! Map<String, dynamic>) {
+          throw const FormatException('Dữ liệu ôn tập Boss không hợp lệ.');
+        }
+        return BossQuestionReview.fromJson(item);
       }).toList(),
     );
   }

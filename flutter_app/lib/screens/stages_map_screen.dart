@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/player.dart';
 import '../models/stage.dart';
 import '../services/stage_service.dart';
+import 'boss_intro_screen.dart';
 import 'quiz_screen.dart';
 
 class StagesMapScreen extends StatefulWidget {
@@ -44,10 +45,12 @@ class _StagesMapScreenState extends State<StagesMapScreen> {
   }
 
   Future<void> _openStage(Stage stage) async {
-    if (stage.isLocked || !stage.isNormal) return;
+    if (stage.isLocked) return;
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
-        builder: (_) => QuizScreen(player: widget.player, stage: stage),
+        builder: (_) => stage.isNormal
+            ? QuizScreen(player: widget.player, stage: stage)
+            : BossIntroScreen(player: widget.player, stage: stage),
       ),
     );
     if (mounted) _loadStages();
@@ -74,11 +77,11 @@ class _StagesMapScreenState extends State<StagesMapScreen> {
 
   Widget _buildStageCard(Stage stage) {
     final isBoss = !stage.isNormal;
-    final isEnabled = !stage.isLocked && !isBoss;
+    final isEnabled = !stage.isLocked;
     final subtitle = stage.isLocked
         ? 'Chưa mở khóa'
         : isBoss
-        ? 'Boss chưa khả dụng trong phần chơi ải thường'
+        ? 'Boss đã mở khóa · Chạm để xem luật chơi'
         : stage.status == 'completed'
         ? 'Đã hoàn thành · Chạm để chơi lại'
         : stage.hasInProgressAttempt
@@ -86,7 +89,7 @@ class _StagesMapScreenState extends State<StagesMapScreen> {
         : 'Đã mở khóa · Chạm để bắt đầu';
 
     return Opacity(
-      opacity: stage.isLocked || isBoss ? 0.48 : 1,
+      opacity: stage.isLocked ? 0.48 : 1,
       child: Card(
         child: ListTile(
           enabled: isEnabled,

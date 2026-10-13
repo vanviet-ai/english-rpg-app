@@ -7,6 +7,106 @@ import 'package:http/http.dart' as http;
 import 'package:http/testing.dart';
 
 void main() {
+  test('uses Boss endpoints and derives its timer from server time', () async {
+    final requests = <http.Request>[];
+    final service = StageService(
+      client: MockClient((request) async {
+        requests.add(request);
+        if (request.url.path.endsWith('/start')) {
+          return http.Response(
+            jsonEncode({
+              'attemptId': 91,
+              'stageId': 4,
+              'expiresAt': '2026-10-14T18:40:00Z',
+              'questions': [
+                {
+                  'questionId': 42,
+                  'orderNo': 1,
+                  'content': 'Choose the correct answer.',
+                  'optionA': 'A',
+                  'optionB': 'B',
+                  'optionC': 'C',
+                  'optionD': 'D',
+                  'isAnswered': false,
+                  'selectedOption': null,
+                },
+              ],
+            }),
+            200,
+            headers: {'date': 'Wed, 14 Oct 2026 18:10:00 GMT'},
+          );
+        }
+        if (request.url.path.endsWith('/answer')) {
+          return http.Response(
+            jsonEncode({'questionId': 42, 'recorded': true}),
+            200,
+          );
+        }
+        if (request.url.path.endsWith('/finish')) {
+          return http.Response(
+            jsonEncode({
+              'attemptId': 91,
+              'stageId': 4,
+              'status': 'Passed',
+              'correctCount': 13,
+              'incorrectCount': 2,
+              'expEarned': 2000,
+              'totalExp': 2000,
+            }),
+            200,
+          );
+        }
+        return http.Response(
+          jsonEncode({
+            'attemptId': 91,
+            'stageId': 4,
+            'status': 'Passed',
+            'correctCount': 13,
+            'incorrectCount': 2,
+            'questions': [
+              {
+                'questionId': 42,
+                'orderNo': 1,
+                'content': 'Choose the correct answer.',
+                'selectedOption': 'B',
+                'correctOption': 'A',
+                'explanation': 'A is correct.',
+              },
+            ],
+          }),
+          200,
+        );
+      }),
+    );
+
+    final attempt = await service.startBossStage(playerId: 7);
+    await service.submitBossAnswer(
+      attempt.attemptId,
+      questionId: 42,
+      selectedOption: 'B',
+    );
+    final result = await service.finishBoss(attempt.attemptId);
+    final summary = await service.getBossSummary(attempt.attemptId);
+
+    expect(requests[0].url.toString(), '$apiBaseUrl/stages/4/start');
+    expect(jsonDecode(requests[0].body), {'playerId': 7, 'restart': false});
+    expect(
+      attempt.remainingAtResponse,
+      greaterThan(const Duration(minutes: 29)),
+    );
+    expect(requests[1].url.toString(), '$apiBaseUrl/attempts/91/answer');
+    expect(jsonDecode(requests[1].body), {
+      'questionId': 42,
+      'selectedOption': 'B',
+    });
+    expect(requests[2].url.toString(), '$apiBaseUrl/attempts/91/finish');
+    expect(result.isVictory, isTrue);
+    expect(result.expEarned, 2000);
+    expect(requests[3].url.toString(), '$apiBaseUrl/attempts/91/summary');
+    expect(summary.questions.single.correctOption, 'A');
+    service.dispose();
+  });
+
   test('uses the stage API endpoints and parses attempt results', () async {
     final requests = <http.Request>[];
     final service = StageService(
