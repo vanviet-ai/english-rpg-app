@@ -157,6 +157,36 @@ public static class SampleDataSeeder
             }
         };
 
+        var additionalQuestions = new[]
+        {
+            CreateSampleQuestion(stagesByOrder[1].Id, 3, "They ___ football after school.", ["play", "plays", "playing", "played"], "A", "The subject is plural.", "Use the base form of the verb with 'they'."),
+            CreateSampleQuestion(stagesByOrder[1].Id, 4, "I ___ a book at the moment.", ["read", "reads", "am reading", "reading"], "C", "The action is happening now.", "Use the present continuous: am + verb-ing."),
+            CreateSampleQuestion(stagesByOrder[1].Id, 5, "There ___ two apples on the table.", ["is", "are", "was", "be"], "B", "The noun is plural.", "Use 'are' with a plural noun in the present tense."),
+            CreateSampleQuestion(stagesByOrder[1].Id, 6, "We went ___ the park yesterday.", ["at", "on", "to", "in"], "C", "Choose the preposition used with 'go' and a destination.", "The usual phrase is 'go to the park'."),
+            CreateSampleQuestion(stagesByOrder[1].Id, 7, "This bag is ___ than that one.", ["heavy", "heavier", "heaviest", "more heavy"], "B", "Compare two things.", "Use the comparative form of this short adjective."),
+            CreateSampleQuestion(stagesByOrder[1].Id, 8, "She has ___ finished her homework.", ["yet", "already", "ever", "ago"], "B", "The sentence says the task is finished earlier than expected.", "Use 'already' in an affirmative present-perfect sentence."),
+            CreateSampleQuestion(stagesByOrder[1].Id, 9, "How ___ milk do you need?", ["many", "much", "few", "several"], "B", "Milk is uncountable.", "Use 'how much' with an uncountable noun."),
+            CreateSampleQuestion(stagesByOrder[1].Id, 10, "The children ___ in the garden now.", ["plays", "is playing", "are playing", "played"], "C", "The subject is plural and the action is happening now.", "Use are + verb-ing."),
+            CreateSampleQuestion(stagesByOrder[2].Id, 3, "By the time we arrived, the film ___.", ["starts", "has started", "had started", "will start"], "C", "One past event happened before another.", "Use the past perfect for the earlier past event."),
+            CreateSampleQuestion(stagesByOrder[2].Id, 4, "She suggested ___ the meeting until Friday.", ["to postpone", "postpone", "postponing", "postponed"], "C", "The verb 'suggest' can be followed by a gerund.", "Use the -ing form after 'suggest'."),
+            CreateSampleQuestion(stagesByOrder[2].Id, 5, "Neither of the answers ___ correct.", ["are", "were", "is", "have"], "C", "The subject begins with 'neither of'.", "In formal usage, 'neither' takes a singular verb."),
+            CreateSampleQuestion(stagesByOrder[2].Id, 6, "If she had left earlier, she ___ the train.", ["would catch", "would have caught", "will catch", "caught"], "B", "This is an unreal condition in the past.", "Use would have + past participle in the result clause."),
+            CreateSampleQuestion(stagesByOrder[2].Id, 7, "The manager asked where I ___.", ["live", "am living", "lived", "will live"], "C", "Reported speech usually shifts the tense back.", "The present simple commonly shifts to the past simple."),
+            CreateSampleQuestion(stagesByOrder[2].Id, 8, "We are looking forward to ___ you.", ["see", "seeing", "be seen", "have seen"], "B", "Here, 'to' is a preposition.", "A preposition is followed by a gerund."),
+            CreateSampleQuestion(stagesByOrder[2].Id, 9, "The problem was ___ difficult that nobody solved it.", ["so", "such", "too", "enough"], "A", "Use the pattern with an adjective followed by 'that'.", "The pattern is 'so + adjective + that'."),
+            CreateSampleQuestion(stagesByOrder[2].Id, 10, "You ___ have told me; I already knew.", ["mustn't", "needn't", "couldn't", "shouldn't"], "B", "The action was unnecessary.", "Use 'needn't have' for an action that was done but was not necessary."),
+            CreateSampleQuestion(stagesByOrder[3].Id, 3, "Rarely ___ such a convincing performance.", ["I have seen", "have I seen", "I saw", "I had saw"], "B", "A negative adverb at the start triggers inversion.", "Place the auxiliary before the subject."),
+            CreateSampleQuestion(stagesByOrder[3].Id, 4, "The proposal, ___ by the committee, will go to a vote.", ["reviewing", "reviewed", "having review", "was reviewed"], "B", "The proposal receives the action.", "Use a past participle reduced relative clause."),
+            CreateSampleQuestion(stagesByOrder[3].Id, 5, "Had it not been for your advice, I ___ the contract.", ["would sign", "would have signed", "will sign", "signed"], "B", "This is an inverted third conditional.", "The result clause takes would have + past participle."),
+            CreateSampleQuestion(stagesByOrder[3].Id, 6, "The evidence is consistent ___ the witness's account.", ["to", "for", "with", "about"], "C", "Recall the preposition that follows 'consistent'.", "The collocation is 'consistent with'."),
+            CreateSampleQuestion(stagesByOrder[3].Id, 7, "No sooner ___ the announcement than the crowd cheered.", ["did they hear", "they heard", "had they heard", "they had hear"], "C", "The phrase 'no sooner' at the beginning requires inversion.", "Use past perfect inversion: had + subject + participle."),
+            CreateSampleQuestion(stagesByOrder[3].Id, 8, "Were the data ___, the conclusion would be different.", ["reliable", "reliably", "reliability", "rely"], "A", "The blank follows 'were' and describes the data.", "A linking verb is followed by an adjective."),
+            CreateSampleQuestion(stagesByOrder[3].Id, 9, "The findings are worth ___ in greater detail.", ["to examine", "examining", "examined", "examine"], "B", "The expression 'worth' is followed by a gerund.", "Use the -ing form after 'worth'."),
+            CreateSampleQuestion(stagesByOrder[3].Id, 10, "Only after the review ___ the scale of the problem.", ["we understood", "did we understand", "we did understood", "understood we"], "B", "A restrictive phrase at the beginning triggers inversion.", "Use auxiliary 'did' before the subject and the base verb.")
+        };
+
+        questions = questions.Concat(additionalQuestions).ToArray();
+
         foreach (var question in questions)
         {
             var alreadySeeded = await dbContext.Questions.AnyAsync(
@@ -170,4 +200,26 @@ public static class SampleDataSeeder
 
         await dbContext.SaveChangesAsync(cancellationToken);
     }
+
+    private static Question CreateSampleQuestion(
+        int stageId,
+        int orderNo,
+        string content,
+        string[] options,
+        string correctOption,
+        string hint1,
+        string hint2) =>
+        new()
+        {
+            StageId = stageId,
+            OrderNo = orderNo,
+            Content = content,
+            OptionA = options[0],
+            OptionB = options[1],
+            OptionC = options[2],
+            OptionD = options[3],
+            CorrectOption = correctOption,
+            Hint1 = hint1,
+            Hint2 = hint2
+        };
 }

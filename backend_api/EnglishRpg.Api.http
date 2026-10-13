@@ -4,3 +4,42 @@ GET {{EnglishRpg.Api_HostAddress}}/weatherforecast/
 Accept: application/json
 
 ###
+
+@playerId = 1
+@stageId = 1
+@attemptId = 1
+@questionId = 1
+
+### Get stages and player progress
+GET {{EnglishRpg.Api_HostAddress}}/api/stages?playerId={{playerId}}
+Accept: application/json
+
+### Start or resume a normal stage
+POST {{EnglishRpg.Api_HostAddress}}/api/stages/{{stageId}}/start
+Content-Type: application/json
+
+{
+  "playerId": {{playerId}},
+  "restart": false
+}
+
+### Answer one question
+POST {{EnglishRpg.Api_HostAddress}}/api/attempts/{{attemptId}}/answer
+Content-Type: application/json
+
+{
+  "questionId": {{questionId}},
+  "selectedOption": "A"
+}
+
+### Request the paid second hint after an incorrect answer
+POST {{EnglishRpg.Api_HostAddress}}/api/attempts/{{attemptId}}/hint/next
+Content-Type: application/json
+
+{
+  "questionId": {{questionId}}
+}
+
+### Finish after all 10 questions have been answered
+POST {{EnglishRpg.Api_HostAddress}}/api/attempts/{{attemptId}}/finish
+Content-Type: application/json
