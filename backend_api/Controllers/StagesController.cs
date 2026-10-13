@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace EnglishRpg.Api.Controllers;
 
-/// <summary>Stage listing and ordinary-stage attempt operations.</summary>
+/// <summary>Stage listing and stage-attempt operations.</summary>
 [ApiController]
 [Route("api")]
 public sealed class StagesController(IStageService stageService) : ControllerBase
@@ -27,7 +27,7 @@ public sealed class StagesController(IStageService stageService) : ControllerBas
         }
     }
 
-    /// <summary>Starts a new ordinary-stage attempt or resumes the current one.</summary>
+    /// <summary>Starts a normal-stage attempt or a fresh Boss attempt.</summary>
     [HttpPost("stages/{stageId:int}/start")]
     [ProducesResponseType<StartStageAttemptResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
@@ -56,20 +56,55 @@ public sealed class StagesController(IStageService stageService) : ControllerBas
         }
     }
 
+    /// <summary>Restores an active ordinary-stage attempt.</summary>
+    [HttpGet("attempts/{attemptId:int}")]
+    [ProducesResponseType<StartStageAttemptResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
+    public async Task<ActionResult<StartStageAttemptResponse>> GetAttempt(
+        int attemptId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            return Ok(await stageService.GetAttemptAsync(attemptId, cancellationToken));
+        }
+        catch (KeyNotFoundException exception)
+        {
+            return Problem(statusCode: StatusCodes.Status404NotFound, title: "Attempt not found", detail: exception.Message);
+        }
+        catch (InvalidOperationException exception)
+        {
+            return Problem(statusCode: StatusCodes.Status409Conflict, title: "Attempt cannot be resumed", detail: exception.Message);
+        }
+    }
+
     /// <summary>Submits a one-time answer and returns the free first hint when incorrect.</summary>
     [HttpPost("attempts/{attemptId:int}/answer")]
     [ProducesResponseType<SubmitAttemptAnswerResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<BossAnswerAcknowledgementResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status400BadRequest)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<SubmitAttemptAnswerResponse>> Answer(
+    public async Task<IActionResult> Answer(
         int attemptId,
         [FromBody] SubmitAttemptAnswerRequest request,
         CancellationToken cancellationToken)
     {
         try
         {
-            return Ok(await stageService.SubmitAnswerAsync(attemptId, request, cancellationToken));
+            var submission = await stageService.SubmitAnswerAsync(attemptId, request, cancellationToken);
+            if (submission.BossResponse is not null)
+            {
+                return Ok(submission.BossResponse);
+            }
+
+            if (submission.NormalResponse is not null)
+            {
+                return Ok(submission.NormalResponse);
+            }
+
+            throw new InvalidOperationException("The answer submission did not produce a response.");
         }
         catch (KeyNotFoundException exception)
         {
@@ -114,18 +149,30 @@ public sealed class StagesController(IStageService stageService) : ControllerBas
         }
     }
 
-    /// <summary>Finishes a fully answered attempt and awards its calculated EXP.</summary>
+    /// <summary>Finishes an attempt and awards any earned EXP.</summary>
     [HttpPost("attempts/{attemptId:int}/finish")]
     [ProducesResponseType<FinishStageAttemptResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<BossFinishAttemptResponse>(StatusCodes.Status200OK)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
     [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
-    public async Task<ActionResult<FinishStageAttemptResponse>> Finish(
+    public async Task<IActionResult> Finish(
         int attemptId,
         CancellationToken cancellationToken)
     {
         try
         {
-            return Ok(await stageService.FinishAttemptAsync(attemptId, cancellationToken));
+            var submission = await stageService.FinishAttemptAsync(attemptId, cancellationToken);
+            if (submission.BossResponse is not null)
+            {
+                return Ok(submission.BossResponse);
+            }
+
+            if (submission.NormalResponse is not null)
+            {
+                return Ok(submission.NormalResponse);
+            }
+
+            throw new InvalidOperationException("Finishing the attempt did not produce a response.");
         }
         catch (KeyNotFoundException exception)
         {
@@ -134,6 +181,41 @@ public sealed class StagesController(IStageService stageService) : ControllerBas
         catch (InvalidOperationException exception)
         {
             return Problem(statusCode: StatusCodes.Status409Conflict, title: "Attempt cannot be finished", detail: exception.Message);
+        }
+    }
+
+    /// <summary>Returns the finished attempt's review without exposing answers before finish.</summary>
+    [HttpGet("attempts/{attemptId:int}/summary")]
+    [ProducesResponseType<NormalAttemptSummaryResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<BossAttemptSummaryResponse>(StatusCodes.Status200OK)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status404NotFound)]
+    [ProducesResponseType<ProblemDetails>(StatusCodes.Status409Conflict)]
+    public async Task<IActionResult> GetSummary(
+        int attemptId,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var summary = await stageService.GetAttemptSummaryAsync(attemptId, cancellationToken);
+            if (summary.BossResponse is not null)
+            {
+                return Ok(summary.BossResponse);
+            }
+
+            if (summary.NormalResponse is not null)
+            {
+                return Ok(summary.NormalResponse);
+            }
+
+            throw new InvalidOperationException("The attempt summary did not produce a response.");
+        }
+        catch (KeyNotFoundException exception)
+        {
+            return Problem(statusCode: StatusCodes.Status404NotFound, title: "Attempt not found", detail: exception.Message);
+        }
+        catch (InvalidOperationException exception)
+        {
+            return Problem(statusCode: StatusCodes.Status409Conflict, title: "Summary is not available", detail: exception.Message);
         }
     }
 }

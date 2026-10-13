@@ -39,6 +39,10 @@ public sealed record StartStageAttemptResponse(
     DateTimeOffset ExpiresAt,
     IReadOnlyList<AttemptQuestionResponse> Questions);
 
+public sealed record AttemptAnswerSubmission(
+    SubmitAttemptAnswerResponse? NormalResponse,
+    BossAnswerAcknowledgementResponse? BossResponse);
+
 /// <summary>Request to answer a question in an attempt.</summary>
 public sealed record SubmitAttemptAnswerRequest
 {
@@ -54,6 +58,11 @@ public sealed record SubmitAttemptAnswerResponse(
     int QuestionId,
     bool IsCorrect,
     string? Hint1,
+    DateTimeOffset ExpiresAt);
+
+public sealed record BossAnswerAcknowledgementResponse(
+    int QuestionId,
+    bool Recorded,
     DateTimeOffset ExpiresAt);
 
 /// <summary>Request to reveal the second hint for an incorrectly answered question.</summary>
@@ -92,3 +101,42 @@ public sealed record FinishStageAttemptResponse(
     int ExpEarned,
     int TotalExp,
     IReadOnlyList<IncorrectQuestionReviewResponse> IncorrectQuestions);
+
+public sealed record BossFinishAttemptResponse(
+    int AttemptId,
+    int StageId,
+    string Status,
+    int CorrectCount,
+    int IncorrectCount,
+    int ExpEarned,
+    int TotalExp);
+
+public sealed record AttemptFinishSubmission(
+    FinishStageAttemptResponse? NormalResponse,
+    BossFinishAttemptResponse? BossResponse);
+
+public sealed record NormalAttemptSummaryResponse(
+    int AttemptId,
+    int StageId,
+    string Status,
+    IReadOnlyList<IncorrectQuestionReviewResponse> IncorrectQuestions);
+
+public sealed record BossQuestionReviewResponse(
+    int QuestionId,
+    int OrderNo,
+    string Content,
+    string? SelectedOption,
+    string CorrectOption,
+    string? Explanation);
+
+public sealed record BossAttemptSummaryResponse(
+    int AttemptId,
+    int StageId,
+    string Status,
+    int CorrectCount,
+    int IncorrectCount,
+    IReadOnlyList<BossQuestionReviewResponse> Questions);
+
+public sealed record AttemptSummaryResult(
+    NormalAttemptSummaryResponse? NormalResponse,
+    BossAttemptSummaryResponse? BossResponse);

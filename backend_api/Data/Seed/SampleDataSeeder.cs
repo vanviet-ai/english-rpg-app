@@ -185,7 +185,31 @@ public static class SampleDataSeeder
             CreateSampleQuestion(stagesByOrder[3].Id, 10, "Only after the review ___ the scale of the problem.", ["we understood", "did we understand", "we did understood", "understood we"], "B", "A restrictive phrase at the beginning triggers inversion.", "Use auxiliary 'did' before the subject and the base verb.")
         };
 
-        questions = questions.Concat(additionalQuestions).ToArray();
+        var bossQuestions = new[]
+        {
+            CreateBossQuestion(stagesByOrder[4].Id, 3, "He ___ breakfast at seven every day.", ["eat", "eats", "eating", "ate"], "B"),
+            CreateBossQuestion(stagesByOrder[4].Id, 4, "They ___ at home yesterday.", ["was", "are", "were", "be"], "C"),
+            CreateBossQuestion(stagesByOrder[4].Id, 5, "We ___ TV when the phone rang.", ["watch", "watched", "were watching", "are watching"], "C"),
+            CreateBossQuestion(stagesByOrder[4].Id, 6, "I have lived here ___ 2020.", ["for", "since", "during", "at"], "B"),
+            CreateBossQuestion(stagesByOrder[4].Id, 7, "There isn't ___ sugar in my tea.", ["many", "few", "much", "several"], "C"),
+            CreateBossQuestion(stagesByOrder[4].Id, 8, "She is good ___ drawing.", ["at", "in", "on", "for"], "A"),
+            CreateBossQuestion(stagesByOrder[4].Id, 9, "Please put the book on ___ table.", ["a", "an", "the", "some"], "C"),
+            CreateBossQuestion(stagesByOrder[4].Id, 10, "If it rains, we ___ at home.", ["stay", "stayed", "will stay", "would stayed"], "C"),
+            CreateBossQuestion(stagesByOrder[4].Id, 11, "Tom is taller ___ Ben.", ["then", "than", "that", "as"], "B"),
+            CreateBossQuestion(stagesByOrder[4].Id, 12, "Please speak more ___.", ["slow", "slower", "slowly", "slowlier"], "C"),
+            CreateBossQuestion(stagesByOrder[4].Id, 13, "The opposite of 'early' is ___.", ["late", "fast", "near", "soon"], "A"),
+            CreateBossQuestion(stagesByOrder[4].Id, 14, "I ___ my keys. Have you seen them?", ["lose", "lost", "have lost", "am losing"], "C"),
+            CreateBossQuestion(stagesByOrder[4].Id, 15, "She ___ to music now.", ["listens", "is listening", "listened", "listen"], "B"),
+            CreateBossQuestion(stagesByOrder[4].Id, 16, "We enjoyed ___ the museum.", ["visit", "to visit", "visiting", "visited"], "C"),
+            CreateBossQuestion(stagesByOrder[4].Id, 17, "You ___ wear a seat belt in a car.", ["must", "might", "would", "could"], "A"),
+            CreateBossQuestion(stagesByOrder[4].Id, 18, "Can you ___ me your pen?", ["borrow", "lend", "take", "bring"], "B"),
+            CreateBossQuestion(stagesByOrder[4].Id, 19, "I was tired, ___ I went to bed.", ["but", "because", "so", "although"], "C"),
+            CreateBossQuestion(stagesByOrder[4].Id, 20, "There are ___ oranges than apples.", ["less", "fewer", "little", "fewest"], "B"),
+            CreateBossQuestion(stagesByOrder[4].Id, 21, "He has ___ finished his homework.", ["yet", "just", "ever", "ago"], "B"),
+            CreateBossQuestion(stagesByOrder[4].Id, 22, "What ___ you doing at eight last night?", ["was", "are", "were", "did"], "C")
+        };
+
+        questions = questions.Concat(additionalQuestions).Concat(bossQuestions).ToArray();
 
         foreach (var question in questions)
         {
@@ -221,5 +245,23 @@ public static class SampleDataSeeder
             CorrectOption = correctOption,
             Hint1 = hint1,
             Hint2 = hint2
+        };
+
+    private static Question CreateBossQuestion(
+        int stageId,
+        int orderNo,
+        string content,
+        string[] options,
+        string correctOption) =>
+        new()
+        {
+            StageId = stageId,
+            OrderNo = orderNo,
+            Content = content,
+            OptionA = options[0],
+            OptionB = options[1],
+            OptionC = options[2],
+            OptionD = options[3],
+            CorrectOption = correctOption
         };
 }

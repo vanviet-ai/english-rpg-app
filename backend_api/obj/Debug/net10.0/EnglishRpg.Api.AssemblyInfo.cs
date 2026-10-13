@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("EnglishRpg.Api")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+5480df7615e1ee969437e9802012ca00e4835a25")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+8aff6d338ef3e9e5d70d4ffd49045e92dfdc57b6")]
 [assembly: System.Reflection.AssemblyProductAttribute("EnglishRpg.Api")]
 [assembly: System.Reflection.AssemblyTitleAttribute("EnglishRpg.Api")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]
