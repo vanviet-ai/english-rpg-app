@@ -4,13 +4,20 @@ import '../models/player.dart';
 import '../models/stage.dart';
 import '../services/stage_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_dialogs.dart';
 import 'stage_summary_screen.dart';
 
 class QuizScreen extends StatefulWidget {
-  const QuizScreen({super.key, required this.player, required this.stage});
+  const QuizScreen({
+    super.key,
+    required this.player,
+    required this.stage,
+    this.restart = false,
+  });
 
   final Player player;
   final Stage stage;
+  final bool restart;
 
   @override
   State<QuizScreen> createState() => _QuizScreenState();
@@ -58,7 +65,7 @@ class _QuizScreenState extends State<QuizScreen> {
       final attempt = await _stageService.startStage(
         widget.stage.id,
         playerId: widget.player.id,
-        restart: false,
+        restart: widget.restart,
       );
       if (!mounted) return;
       _answeredQuestionIds
@@ -78,6 +85,9 @@ class _QuizScreenState extends State<QuizScreen> {
       });
       if (nextIndex == -1) _finishStage();
     } on StageServiceException catch (error) {
+      if (mounted && error.isConnectionError) {
+        await showNetworkErrorDialog(context, error.message);
+      }
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -118,6 +128,9 @@ class _QuizScreenState extends State<QuizScreen> {
         _answeredQuestionIds.add(question.questionId);
       });
     } on StageServiceException catch (error) {
+      if (mounted && error.isConnectionError) {
+        await showNetworkErrorDialog(context, error.message);
+      }
       if (mounted) {
         setState(() {
           _isBusy = false;
@@ -160,6 +173,9 @@ class _QuizScreenState extends State<QuizScreen> {
         _hint2Used = true;
       });
     } on StageServiceException catch (error) {
+      if (mounted && error.isConnectionError) {
+        await showNetworkErrorDialog(context, error.message);
+      }
       if (mounted) {
         setState(() {
           _isBusy = false;
@@ -215,6 +231,9 @@ class _QuizScreenState extends State<QuizScreen> {
         ),
       );
     } on StageServiceException catch (error) {
+      if (mounted && error.isConnectionError) {
+        await showNetworkErrorDialog(context, error.message);
+      }
       if (mounted) {
         setState(() {
           _isBusy = false;
@@ -310,10 +329,7 @@ class _QuizScreenState extends State<QuizScreen> {
         ],
         if (_errorMessage != null) ...[
           const SizedBox(height: 12),
-          Text(
-            _errorMessage!,
-            style: const TextStyle(color: AppColors.error),
-          ),
+          Text(_errorMessage!, style: const TextStyle(color: AppColors.error)),
         ],
         if (_isBusy) ...[
           const SizedBox(height: 16),

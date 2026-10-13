@@ -3,11 +3,15 @@ import 'package:flutter/material.dart';
 import '../models/player.dart';
 import '../services/player_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_dialogs.dart';
 import '../widgets/primary_button.dart';
+import 'home_screen.dart';
 import 'university_selection_screen.dart';
 
 class LoginScreen extends StatefulWidget {
-  const LoginScreen({super.key});
+  const LoginScreen({super.key, this.playerService});
+
+  final PlayerService? playerService;
 
   @override
   State<LoginScreen> createState() => _LoginScreenState();
@@ -15,9 +19,15 @@ class LoginScreen extends StatefulWidget {
 
 class _LoginScreenState extends State<LoginScreen> {
   final _nameController = TextEditingController();
-  final _playerService = PlayerService();
+  late final PlayerService _playerService;
   String? _errorMessage;
   bool _isLoading = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _playerService = widget.playerService ?? PlayerService();
+  }
 
   @override
   void dispose() {
@@ -41,12 +51,25 @@ class _LoginScreenState extends State<LoginScreen> {
     try {
       final Player player = await _playerService.login(name);
       if (!mounted) return;
+      final targetUniversityId = player.targetUniversityId;
+      final targetUniversity = player.targetUniversity;
+      if (targetUniversityId != null &&
+          targetUniversity?.id != targetUniversityId) {
+        throw const FormatException(
+          'Không thể tải trường mục tiêu của người chơi.',
+        );
+      }
       await Navigator.of(context).pushReplacement(
         MaterialPageRoute<void>(
-          builder: (_) => UniversitySelectionScreen(player: player),
+          builder: (_) => targetUniversityId == null
+              ? UniversitySelectionScreen(player: player)
+              : HomeScreen(player: player, university: targetUniversity!),
         ),
       );
     } on PlayerServiceException catch (error) {
+      if (mounted && error.isConnectionError) {
+        await showNetworkErrorDialog(context, error.message);
+      }
       if (mounted) setState(() => _errorMessage = error.message);
     } on FormatException catch (error) {
       if (mounted) setState(() => _errorMessage = error.message);
@@ -67,11 +90,7 @@ class _LoginScreenState extends State<LoginScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
-                  Icons.auto_stories,
-                  size: 64,
-                  color: AppColors.primary,
-                ),
+                Icon(Icons.auto_stories, size: 64, color: AppColors.primary),
                 const SizedBox(height: 24),
                 Text(
                   'English RPG',
@@ -100,7 +119,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   const SizedBox(height: 12),
                   Text(
                     _errorMessage!,
-                    style: TextStyle(color: Theme.of(context).colorScheme.error),
+                    style: TextStyle(
+                      color: Theme.of(context).colorScheme.error,
+                    ),
                     textAlign: TextAlign.center,
                   ),
                 ],

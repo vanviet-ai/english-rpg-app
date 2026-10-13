@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/player.dart';
 import '../models/stage.dart';
 import '../services/stage_service.dart';
+import '../widgets/app_dialogs.dart';
 import 'boss_quiz_screen.dart';
 
 class BossIntroScreen extends StatefulWidget {
@@ -44,6 +45,9 @@ class _BossIntroScreenState extends State<BossIntroScreen> {
       );
       if (mounted) setState(() => _isStarting = false);
     } on StageServiceException catch (error) {
+      if (mounted && error.isConnectionError) {
+        await showNetworkErrorDialog(context, error.message);
+      }
       if (mounted) {
         setState(() {
           _isStarting = false;

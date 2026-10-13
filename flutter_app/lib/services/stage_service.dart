@@ -6,9 +6,10 @@ import '../models/stage.dart';
 import 'player_service.dart';
 
 class StageServiceException implements Exception {
-  const StageServiceException(this.message);
+  const StageServiceException(this.message, {this.isConnectionError = false});
 
   final String message;
+  final bool isConnectionError;
 }
 
 class StageService {
@@ -162,6 +163,7 @@ class StageService {
     } on http.ClientException {
       throw const StageServiceException(
         'Không thể kết nối đến máy chủ. Vui lòng kiểm tra backend đang chạy.',
+        isConnectionError: true,
       );
     }
   }

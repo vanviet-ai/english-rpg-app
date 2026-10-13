@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/stage.dart';
 import '../services/stage_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_dialogs.dart';
 
 class BossResultScreen extends StatefulWidget {
   const BossResultScreen({
@@ -52,6 +53,9 @@ class _BossResultScreenState extends State<BossResultScreen> {
         });
       }
     } on StageServiceException catch (error) {
+      if (mounted && error.isConnectionError) {
+        await showNetworkErrorDialog(context, error.message);
+      }
       if (mounted) {
         setState(() {
           _isLoading = false;
@@ -94,10 +98,8 @@ class _BossResultScreenState extends State<BossResultScreen> {
             Text(
               'Nhận ${result.expEarned} EXP',
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                color: AppColors.exp,
-                fontWeight: FontWeight.w600,
-              ),
+              style: Theme.of(context).textTheme.titleMedium
+                  ?.copyWith(color: AppColors.exp, fontWeight: FontWeight.w600),
             )
           else if (result.isVictory)
             const Text(

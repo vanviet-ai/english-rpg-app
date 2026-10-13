@@ -8,9 +8,10 @@ import '../models/university.dart';
 const apiBaseUrl = 'http://localhost:5137/api';
 
 class PlayerServiceException implements Exception {
-  const PlayerServiceException(this.message);
+  const PlayerServiceException(this.message, {this.isConnectionError = false});
 
   final String message;
+  final bool isConnectionError;
 }
 
 class PlayerService {
@@ -109,6 +110,7 @@ class PlayerService {
   PlayerServiceException _connectionException() {
     return const PlayerServiceException(
       'Không thể kết nối đến máy chủ. Vui lòng kiểm tra backend đang chạy.',
+      isConnectionError: true,
     );
   }
 

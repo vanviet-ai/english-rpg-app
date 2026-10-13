@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/player.dart';
 import '../models/stage.dart';
 import '../services/stage_service.dart';
+import '../widgets/app_dialogs.dart';
 import 'boss_intro_screen.dart';
 import 'quiz_screen.dart';
 
@@ -38,6 +39,9 @@ class _StagesMapScreenState extends State<StagesMapScreen> {
       final stages = await _stageService.getStages(widget.player.id);
       if (mounted) setState(() => _stages = stages);
     } on StageServiceException catch (error) {
+      if (mounted && error.isConnectionError) {
+        await showNetworkErrorDialog(context, error.message);
+      }
       if (mounted) setState(() => _errorMessage = error.message);
     } on FormatException catch (error) {
       if (mounted) setState(() => _errorMessage = error.message);
@@ -46,10 +50,16 @@ class _StagesMapScreenState extends State<StagesMapScreen> {
 
   Future<void> _openStage(Stage stage) async {
     if (stage.isLocked) return;
+    var restart = false;
+    if (stage.isNormal && stage.hasInProgressAttempt) {
+      final shouldRestart = await showResumeStageDialog(context);
+      if (shouldRestart == null || !mounted) return;
+      restart = shouldRestart;
+    }
     await Navigator.of(context).push(
       MaterialPageRoute<void>(
         builder: (_) => stage.isNormal
-            ? QuizScreen(player: widget.player, stage: stage)
+            ? QuizScreen(player: widget.player, stage: stage, restart: restart)
             : BossIntroScreen(player: widget.player, stage: stage),
       ),
     );

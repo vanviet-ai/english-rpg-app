@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/player.dart';
 import '../models/university.dart';
 import '../services/player_service.dart';
+import '../widgets/app_dialogs.dart';
 import 'home_screen.dart';
 
 class UniversitySelectionScreen extends StatefulWidget {
@@ -39,6 +40,9 @@ class _UniversitySelectionScreenState extends State<UniversitySelectionScreen> {
       final universities = await _playerService.getUniversities();
       if (mounted) setState(() => _universities = universities);
     } on PlayerServiceException catch (error) {
+      if (mounted && error.isConnectionError) {
+        await showNetworkErrorDialog(context, error.message);
+      }
       if (mounted) setState(() => _errorMessage = error.message);
     } on FormatException catch (error) {
       if (mounted) setState(() => _errorMessage = error.message);
@@ -60,6 +64,9 @@ class _UniversitySelectionScreenState extends State<UniversitySelectionScreen> {
         ),
       );
     } on PlayerServiceException catch (error) {
+      if (mounted && error.isConnectionError) {
+        await showNetworkErrorDialog(context, error.message);
+      }
       if (mounted) setState(() => _errorMessage = error.message);
     } on FormatException catch (error) {
       if (mounted) setState(() => _errorMessage = error.message);

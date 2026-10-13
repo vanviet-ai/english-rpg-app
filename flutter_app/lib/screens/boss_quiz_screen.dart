@@ -5,6 +5,7 @@ import 'package:flutter/material.dart';
 import '../models/stage.dart';
 import '../services/stage_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_dialogs.dart';
 import 'boss_result_screen.dart';
 
 class BossQuizScreen extends StatefulWidget {
@@ -97,6 +98,10 @@ class _BossQuizScreenState extends State<BossQuizScreen> {
       if (_timeExpired) await _finishBoss();
     } on StageServiceException catch (error) {
       if (!mounted) return;
+      if (error.isConnectionError) {
+        await showNetworkErrorDialog(context, error.message);
+      }
+      if (!mounted) return;
       setState(() {
         _isSubmitting = false;
         _errorMessage = error.message;
@@ -128,6 +133,9 @@ class _BossQuizScreenState extends State<BossQuizScreen> {
         ),
       );
     } on StageServiceException catch (error) {
+      if (mounted && error.isConnectionError) {
+        await showNetworkErrorDialog(context, error.message);
+      }
       if (mounted) {
         setState(() {
           _isFinishing = false;
@@ -217,9 +225,7 @@ class _BossQuizScreenState extends State<BossQuizScreen> {
                   const SizedBox(height: 12),
                   Text(
                     _errorMessage!,
-                    style: TextStyle(
-                      color: AppColors.error,
-                    ),
+                    style: TextStyle(color: AppColors.error),
                   ),
                 ],
                 const SizedBox(height: 16),

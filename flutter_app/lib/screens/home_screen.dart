@@ -4,6 +4,7 @@ import '../models/player.dart';
 import '../models/university.dart';
 import '../services/player_service.dart';
 import '../theme/app_theme.dart';
+import '../widgets/app_dialogs.dart';
 import 'stages_map_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -56,6 +57,9 @@ class _HomeScreenState extends State<HomeScreen> {
       if (!mounted) return;
       setState(() => _player = player);
     } on PlayerServiceException catch (error) {
+      if (mounted && error.isConnectionError) {
+        await showNetworkErrorDialog(context, error.message);
+      }
       if (mounted) setState(() => _errorMessage = error.message);
     } on FormatException catch (error) {
       if (mounted) setState(() => _errorMessage = error.message);
@@ -151,9 +155,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 12),
                   Text(
                     'Không thể cập nhật EXP: $_errorMessage',
-                    style: TextStyle(
-                      color: AppColors.error,
-                    ),
+                    style: TextStyle(color: AppColors.error),
                   ),
                   TextButton(
                     onPressed: _isRefreshing ? null : _refreshPlayer,
