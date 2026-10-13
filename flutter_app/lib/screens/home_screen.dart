@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/player.dart';
 import '../models/university.dart';
 import '../services/player_service.dart';
+import '../theme/app_theme.dart';
 import 'stages_map_screen.dart';
 
 class HomeScreen extends StatefulWidget {
@@ -135,15 +136,14 @@ class _HomeScreenState extends State<HomeScreen> {
                   child: LinearProgressIndicator(
                     value: progress,
                     minHeight: 10,
+                    color: AppColors.exp,
                   ),
                 ),
                 const SizedBox(height: 8),
                 Text(
                   isUniversityUnlocked ? 'Đã mở khóa' : 'Chưa mở khóa',
                   style: TextStyle(
-                    color: isUniversityUnlocked
-                        ? Theme.of(context).colorScheme.primary
-                        : null,
+                    color: isUniversityUnlocked ? AppColors.success : null,
                     fontWeight: isUniversityUnlocked ? FontWeight.bold : null,
                   ),
                 ),
@@ -152,7 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   Text(
                     'Không thể cập nhật EXP: $_errorMessage',
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
+                      color: AppColors.error,
                     ),
                   ),
                   TextButton(

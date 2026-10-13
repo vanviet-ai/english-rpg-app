@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/stage.dart';
 import '../services/stage_service.dart';
+import '../theme/app_theme.dart';
 
 class BossResultScreen extends StatefulWidget {
   const BossResultScreen({
@@ -78,7 +79,9 @@ class _BossResultScreenState extends State<BossResultScreen> {
           Text(
             result.isVictory ? 'Chiến thắng!' : 'Chưa chiến thắng',
             textAlign: TextAlign.center,
-            style: Theme.of(context).textTheme.headlineMedium,
+            style: Theme.of(context).textTheme.headlineMedium?.copyWith(
+              color: result.isVictory ? AppColors.success : AppColors.error,
+            ),
           ),
           const SizedBox(height: 12),
           Text(
@@ -91,7 +94,10 @@ class _BossResultScreenState extends State<BossResultScreen> {
             Text(
               'Nhận ${result.expEarned} EXP',
               textAlign: TextAlign.center,
-              style: Theme.of(context).textTheme.titleMedium,
+              style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                color: AppColors.exp,
+                fontWeight: FontWeight.w600,
+              ),
             )
           else if (result.isVictory)
             const Text(

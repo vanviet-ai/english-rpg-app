@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 
 import '../models/stage.dart';
 import '../services/stage_service.dart';
+import '../theme/app_theme.dart';
 import 'boss_result_screen.dart';
 
 class BossQuizScreen extends StatefulWidget {
@@ -166,9 +167,7 @@ class _BossQuizScreenState extends State<BossQuizScreen> {
                   'Còn lại: $_formattedTime',
                   textAlign: TextAlign.center,
                   style: Theme.of(context).textTheme.headlineSmall?.copyWith(
-                    color: _remaining.inMinutes < 5
-                        ? Theme.of(context).colorScheme.error
-                        : null,
+                    color: _remaining.inMinutes < 5 ? AppColors.error : null,
                   ),
                 ),
                 const SizedBox(height: 12),
@@ -219,7 +218,7 @@ class _BossQuizScreenState extends State<BossQuizScreen> {
                   Text(
                     _errorMessage!,
                     style: TextStyle(
-                      color: Theme.of(context).colorScheme.error,
+                      color: AppColors.error,
                     ),
                   ),
                 ],

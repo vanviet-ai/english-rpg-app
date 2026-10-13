@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import 'screens/login_screen.dart';
+import 'theme/app_theme.dart';
 
 void main() {
   runApp(const EnglishRpgApp());
@@ -13,10 +14,7 @@ class EnglishRpgApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'English RPG',
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.indigo),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.theme,
       home: const LoginScreen(),
     );
   }

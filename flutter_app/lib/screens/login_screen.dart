@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../models/player.dart';
 import '../services/player_service.dart';
+import '../theme/app_theme.dart';
 import '../widgets/primary_button.dart';
 import 'university_selection_screen.dart';
 
@@ -69,7 +70,7 @@ class _LoginScreenState extends State<LoginScreen> {
                 Icon(
                   Icons.auto_stories,
                   size: 64,
-                  color: Theme.of(context).colorScheme.primary,
+                  color: AppColors.primary,
                 ),
                 const SizedBox(height: 24),
                 Text(

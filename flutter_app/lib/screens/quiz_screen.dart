@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../models/player.dart';
 import '../models/stage.dart';
 import '../services/stage_service.dart';
+import '../theme/app_theme.dart';
 import 'stage_summary_screen.dart';
 
 class QuizScreen extends StatefulWidget {
@@ -278,9 +279,7 @@ class _QuizScreenState extends State<QuizScreen> {
           Text(
             _isCorrect! ? 'Chính xác!' : 'Chưa chính xác.',
             style: TextStyle(
-              color: _isCorrect!
-                  ? Colors.green
-                  : Theme.of(context).colorScheme.error,
+              color: _isCorrect! ? AppColors.success : AppColors.error,
               fontWeight: FontWeight.bold,
             ),
           ),
@@ -313,7 +312,7 @@ class _QuizScreenState extends State<QuizScreen> {
           const SizedBox(height: 12),
           Text(
             _errorMessage!,
-            style: TextStyle(color: Theme.of(context).colorScheme.error),
+            style: const TextStyle(color: AppColors.error),
           ),
         ],
         if (_isBusy) ...[

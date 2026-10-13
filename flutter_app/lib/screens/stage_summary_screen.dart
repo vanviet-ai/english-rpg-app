@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../models/stage.dart';
+import '../theme/app_theme.dart';
 
 class StageSummaryScreen extends StatelessWidget {
   const StageSummaryScreen({
@@ -21,9 +22,21 @@ class StageSummaryScreen extends StatelessWidget {
         children: [
           Text(stage.name, style: Theme.of(context).textTheme.headlineSmall),
           const SizedBox(height: 16),
-          Text('Số câu đúng: ${summary.correctCount}'),
-          Text('Số câu sai: ${summary.incorrectCount}'),
-          Text('EXP nhận được: ${summary.expEarned}'),
+          Text(
+            'Số câu đúng: ${summary.correctCount}',
+            style: const TextStyle(color: AppColors.success),
+          ),
+          Text(
+            'Số câu sai: ${summary.incorrectCount}',
+            style: const TextStyle(color: AppColors.error),
+          ),
+          Text(
+            'EXP nhận được: ${summary.expEarned}',
+            style: const TextStyle(
+              color: AppColors.exp,
+              fontWeight: FontWeight.w600,
+            ),
+          ),
           const SizedBox(height: 20),
           Text('Ôn tập câu sai', style: Theme.of(context).textTheme.titleLarge),
           const SizedBox(height: 8),
